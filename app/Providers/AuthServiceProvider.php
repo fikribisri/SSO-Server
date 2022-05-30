@@ -27,7 +27,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         //add routes for laravel passport
-       
+
 
         if (!$this->app->routesAreCached()) {
             Passport::routes();
@@ -37,6 +37,10 @@ class AuthServiceProvider extends ServiceProvider
         Passport::tokensExpireIn(now()->addDays(1));
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+
+        Passport::tokensCan([
+            'view-user' => "View user information"
+        ]);
 
 
         //
