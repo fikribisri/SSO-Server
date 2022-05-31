@@ -1,2 +1,2 @@
 # SSO
- Test SSO Server
+Simple SSO Server with Laravel 9
