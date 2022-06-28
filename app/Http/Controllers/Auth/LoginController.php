@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
@@ -26,7 +27,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
@@ -36,5 +37,32 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    public function logout(Request $request) {
+
+        $user_id = Auth()->user()->id;
+        // revoke by token
+        // $token= $request->user()->tokens->find($id);
+        // $token->revoke();
+
+        // all remove token by user
+        \DB::table('oauth_access_tokens')
+            ->where('user_id', $user_id)
+            ->delete();
+
+        // remove all the sessionIds related to the current user
+        \DB::table('sessions')
+            ->where('user_id', $user_id)
+            ->delete();
+
+        \DB::table('oauth_auth_codes')
+            ->where('user_id', $user_id)
+            ->delete();
+
+
+        Auth::logout();
+
+        return redirect(route('login'));
     }
 }

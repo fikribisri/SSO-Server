@@ -2,19 +2,19 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * The model to policy mappings for the application.
+     * The policy mappings for the application.
      *
-     * @var array<class-string, class-string>
+     * @var array
      */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+         'App\Model' => 'App\Policies\ModelPolicy',
     ];
 
     /**
@@ -26,23 +26,15 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //add routes for laravel passport
+        Passport::routes();
+        // this token lifetime
+        // Passport::tokensExpireIn(now()->addDays(15));
+        Passport::tokensExpireIn(now()->addHours(8));
+        Passport::refreshTokensExpireIn(now()->addMinutes(5));
 
-
-        if (!$this->app->routesAreCached()) {
-            Passport::routes();
-        }
-
-        //add token expired for laravel passport
-        Passport::tokensExpireIn(now()->addDays(1));
-        Passport::refreshTokensExpireIn(now()->addDays(30));
-        Passport::personalAccessTokensExpireIn(now()->addMonths(6));
-
-        Passport::tokensCan([
-            'view-user' => "View user information"
-        ]);
-
-
-        //
+        //custom authorization routes
+        \Route::get('oauth/authorize', [
+            'uses' => '\App\Http\Controllers\CustomOauthAuthorizationController@authorize',
+        ])->middleware(['web', 'auth']);
     }
 }
