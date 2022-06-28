@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-
+use App\User;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,6 +13,30 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api', 'scopes:view-user')->get('/user', function (Request $request) {
+//default route /user
+Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+//route /user
+//Route::middleware('auth:api')->get('/user', 'UserController@AuthRouteAPI');
+
+//get profile user
+Route::middleware('auth:api')->get('/user/get', 'UserController@get');
+
+//default route /user/detail
+Route::get('/user/detail', function (Request $request){
+    return User::find($request->user()->id);
+})->middleware('auth:api');
+
+//route user/detail
+//Route::get('/user/detail', 'UserController@userDetail')->middleware('auth.api');
+
+// Public Route
+Route::post('/login','AuthenticationController@login')->name('login');
+
+
+// Private Route
+Route::middleware('auth:api')->group(function () {
+    Route::get('/logout','AuthenticationController@logout')->name('logout');
 });
